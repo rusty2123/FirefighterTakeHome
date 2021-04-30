@@ -41,15 +41,20 @@ public class FireDispatchImpl implements FireDispatch {
       throw new NoFirefightersException();
     }
     int fireFighterCount = firefighters.size();
+
+    // keep track of the index so that we can use it for both the burningBuildings and the firefighters.
+    // this will prevent any double for loops to match fighters to buildings.
     for (int i = 0; i < burningBuildingCount; i++) {
       CityNode burningBuilding = burningBuildings[i];
-      // dispatch a firefighter from the fire station if there is one available.
+      Firefighter firefighter = null;
+      // dispatch a firefighter from the fire station if there is one available. else dispatch the nearest firefighter.
       if (i < fireFighterCount) {
-        firefighters.get(i).updateLocation(burningBuilding);
+       firefighter = firefighters.get(i);
+      } else {
+        firefighter = findNearestFireFighter(burningBuilding);
       }
-      // dispatch the nearest firefighter if there are none left at the station.
-      findNearestFireFighter(burningBuilding).updateLocation(burningBuilding);
-      city.getBuilding(burningBuilding).extinguishFire();
+      firefighter.updateLocation(burningBuilding);
+      firefighter.extinguishFire(city, burningBuilding);
     }
   }
 
